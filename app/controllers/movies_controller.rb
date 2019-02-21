@@ -12,19 +12,25 @@ class MoviesController < ApplicationController
 
   def index
    
-    @all_ratings = Movie.ratings
-    @sort = params[:sort] || session[:sort] 
+    @all_ratings = Movie.ratings # get all the ratings
     
+    # store all the movies by either name or date whether they are saved as cookies or not into the @sort
+    @sort = params[:sort] || session[:sort]
+    
+    # give all rating cookies the value of the ratings stored as cookies if they exist or the value of null
     session[:ratings] = session[:ratings] || {'G'=>'','PG'=>'','PG-13'=>'','R'=>''}
     
+    # store all the movie ratings or cookies of movie ratings into the @movie_params
     @movie_params = params[:ratings] || session[:ratings]
     
+    # assign the sorted values and the movie ratings to the cookies to make sure they are saved
     session[:sort] = @sort
     session[:ratings] = @movie_params
     
+    # the movies are displayed by the saved ratings and the saved sorted order of movie names/release dates
     @movies = Movie.where(rating: session[:ratings].keys).order(session[:sort])
 
-    # if null values exist redirect
+    # if null values exist redirect to the sortings and ratings saved in the session cookies
     if(params[:sort].nil? and !(session[:sort].nil?)) or (params[:ratings].nil? or !(session[:rating].nil?))
       flash.keep
       redirect_to movies_path(sort: session[:sort], ratings: session[:ratings])
